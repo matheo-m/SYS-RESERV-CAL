@@ -13,17 +13,18 @@ use PHPMailer\PHPMailer\Exception;
 //Create an instance; passing `true` enables exceptions
 $mail = new PHPMailer(true);
 
-function EnvoieMail($mail, $mailToSend, $userName, $verificationCode) {
+function EnvoieMail($mail, $mailToSend, $userName, $verificationCode)
+{
 
     //Server settings
     $mail->SMTPDebug = 0;                      //Enable verbose debug output
     $mail->isSMTP();                                            //Send using SMTP
-    $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
-    $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-    $mail->Username   = 'matheomousse.contact@gmail.com';                     //SMTP username
-    $mail->Password   = 'qjwlmjsyejupdkcy';                               //SMTP password
+    $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+    $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+    $mail->Username = 'matheomousse.contact@gmail.com';                     //SMTP username
+    $mail->Password = 'qjwlmjsyejupdkcy';                               //SMTP password
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-    $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+    $mail->Port = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
     //Recipients
     $mail->setFrom('matheomousse.contact@gmail.com', 'Mailer');
@@ -33,7 +34,7 @@ function EnvoieMail($mail, $mailToSend, $userName, $verificationCode) {
     $mail->isHTML(true);                                  //Set email format to HTML
     $mail->Subject = 'Validation de votre compte';
     $mail->CharSet = 'UTF-8';
-    $mail->Body    = '
+    $mail->Body = '
         <!DOCTYPE html>
         <html lang="fr">
 
@@ -87,9 +88,9 @@ function EnvoieMail($mail, $mailToSend, $userName, $verificationCode) {
                     <h1>Validation de votre compte</h1>
                 </div>
                 <div class="content">
-                    <p>Bonjour '.$userName.',</p>
+                    <p>Bonjour ' . $userName . ',</p>
                     <p>Merci de vérifier votre adresse e-mail en cliquant sur le lien ci-dessous :</p>
-                    <p><a href="'.$verificationCode.'" class="verification-link">Vérifier mon adresse e-mail</a></p>
+                    <p><a href="' . $verificationCode . '" class="verification-link">Vérifier mon adresse e-mail</a></p>
                 </div>
                 <div class="footer">
                     <p>&copy; 2025 Mathéo Moussé</p>
@@ -97,7 +98,7 @@ function EnvoieMail($mail, $mailToSend, $userName, $verificationCode) {
             </div>
         </body>
         </html>';
-    $mail->AltBody = 'Bonjour '.$userName.', Merci de vérifier votre adresse e-mail en cliquant sur le lien suivant : '.$verificationCode;
+    $mail->AltBody = 'Bonjour ' . $userName . ', Merci de vérifier votre adresse e-mail en cliquant sur le lien suivant : ' . $verificationCode;
 
     $mail->send();
 }
