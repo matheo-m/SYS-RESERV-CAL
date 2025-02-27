@@ -13,7 +13,8 @@ use PHPMailer\PHPMailer\Exception;
 //Create an instance; passing `true` enables exceptions
 $mail = new PHPMailer(true);
 
-function EnvoieMail($mail,$mailToSend, $content){
+function EnvoieMail($mail, $mailToSend, $userName, $verificationCode) {
+
     //Server settings
     $mail->SMTPDebug = 0;                      //Enable verbose debug output
     $mail->isSMTP();                                            //Send using SMTP
@@ -27,15 +28,20 @@ function EnvoieMail($mail,$mailToSend, $content){
     //Recipients
     $mail->setFrom('matheomousse.contact@gmail.com', 'Mailer');
     $mail->addAddress($mailToSend, 'User');     //Add a recipient
-    $mail->addAddress('ellen@example.com');               //Name is optional
 
     //Content
     $mail->isHTML(true);                                  //Set email format to HTML
     $mail->Subject = 'Validation de votre compte';
+    $mail->CharSet = 'UTF-8';
     $mail->Body    = '
         <!DOCTYPE html>
-        <html>
+        <html lang="fr">
+
         <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Formulaire</title>
+            
             <style>
                 .container {
                     font-family: Arial, sans-serif;
@@ -69,6 +75,10 @@ function EnvoieMail($mail,$mailToSend, $content){
                     font-weight: bold;
                     color: #007bff;
                 }
+                .p {
+                    color:rgb(0, 0, 0);
+                }
+                
             </style>
         </head>
         <body>
@@ -77,16 +87,17 @@ function EnvoieMail($mail,$mailToSend, $content){
                     <h1>Validation de votre compte</h1>
                 </div>
                 <div class="content">
-                    <p>Merci de vérifier votre adresse e-mail en utilisant le code ci-dessous :</p>
-                    <p class="verification-code">{$content}</p>
+                    <p>Bonjour '.$userName.',</p>
+                    <p>Merci de vérifier votre adresse e-mail en cliquant sur le lien ci-dessous :</p>
+                    <p><a href="'.$verificationCode.'" class="verification-link">Vérifier mon adresse e-mail</a></p>
                 </div>
                 <div class="footer">
-                    <p>&copy; 2023 Votre Société</p>
+                    <p>&copy; 2025 Mathéo Moussé</p>
                 </div>
             </div>
         </body>
         </html>';
-    $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+    $mail->AltBody = 'Bonjour '.$userName.', Merci de vérifier votre adresse e-mail en cliquant sur le lien suivant : '.$verificationCode;
 
     $mail->send();
 }
