@@ -1,36 +1,78 @@
-    <?php
-    require 'config.php'; // Fichier de connexion à la base de données
+<?php
+require "PHPMailer/PHPMailerAutoload.php";
+require 'config.php'; // Fichier de connexion à la base de données
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Récupérer et sécuriser les données du formulaire
-        $nom = htmlspecialchars($_POST['nom']);
-        $prenom = htmlspecialchars($_POST['prenom']);
-        $date_naissance = $_POST['date_naissance'];
-        $adresse = htmlspecialchars($_POST['adresse']);
-        $telephone = htmlspecialchars($_POST['telephone']);
-        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-        $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-        $token = bin2hex(random_bytes(50)); // Générer un token unique
+if(isset($_POST['valider'])){
+    if (!empty($_POST['email'])){
+        $cle = rand(100000, 999999);
+        $email = $_POST['email'];
+        $insererUser = $bdd->prepare("INSERT INTO utilisateurs (email, cle, confirme) VALUES (?, ?, ?)");
+        $insererUser->execute(array($email, $cle, 0));
 
-        // Vérifier si l'email existe déjà
-        $checkEmail = $pdo->prepare("SELECT id FROM utilisateurs WHERE email = ?");
-        $checkEmail->execute([$email]);
-        if ($checkEmail->rowCount() > 0) {
-            die("Cet email est déjà utilisé.");
+        $recupUser = $bdd->prepare("SELECT * FROM utilisateurs WHERE email = ?");
+        $recupUser->execute(array($email));
+        if ($recupUser->rowCount() > 0) {
+            $userInfos = $recupUser->fetch();
+            $_SESSION['id'] = $userInfos['id'];
+
+
+
+            function smtpmailer($to, $from, $from_name, $subject, $body)
+            {
+                $mail = new PHPMailer();
+                $mail->IsSMTP();
+                $mail->SMTPAuth = true;
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Utiliser STARTTLS au lieu de SSL
+                $mail->Host = 'smtp.gmail.com';
+                $mail->Port = 587;  // Port correct pour STARTTLS
+                $mail->Username = 'matheomousse.contact@gmail.com';
+                $mail->Username = 'matheomousse.contact@gmail.com';
+                $mail->Password = 'pltd esfi wgvw rmtw ';
+        
+            //   $path = 'reseller.pdf';
+            //   $mail->AddAttachment($path);
+        
+                $mail->IsHTML(true);
+                $mail->From="matheomousse.contact@gmail.com";
+                $mail->FromName=$from_name;
+                $mail->Sender=$from;
+                $mail->AddReplyTo($from, $from_name);
+                $mail->Subject = $subject;
+                $mail->Body = $body;
+                $mail->AddAddress($to);
+                $mail->SMTPDebug = 2; // Enable verbose debug output
+                $mail->Debugoutput = 'html'; // Output format for debug information
+                if(!$mail->Send())
+                {
+                    $error = "Mailer Error: " . $mail->ErrorInfo;
+                    return $error; 
+                }
+                else 
+                {
+                    $error = "Thanks You !! Your email is sent.";  
+                    return $error;
+                }
+                
+            }
+            
+            $to   = $email;
+            $from = 'matheomousse.contact@gmail.com';
+            $name = 'Matheo';
+            $subj = 'Email de confirmation de compte';
+            $msg = 'http://localhost/verif.php?id='.$_SESSION['id'].'&cle='.$cle;
+            
+            $error=smtpmailer($to,$from, $name ,$subj, $msg);
+
         }
 
-        // Insérer l'utilisateur dans la base de données
-        $stmt = $pdo->prepare("INSERT INTO utilisateurs (nom, prenom, date_naissance, adresse, telephone, email, mot_de_passe, token, actif) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)");
-        if ($stmt->execute([$nom, $prenom, $date_naissance, $adresse, $telephone, $email, $password, $token])) {
-            // Envoi d'email de confirmation
-            $verification_link = "http://ton-site.com/verification.php?email=$email&token=$token";
-            mail($email, "Vérification de votre compte", "Cliquez sur ce lien pour activer votre compte : $verification_link");
-            echo "Inscription réussie ! Vérifiez votre email pour activer votre compte.";
-        } else {
-            echo "Erreur lors de l'inscription.";
-        }
+    }else{
+        echo "Veuillez renseigner votre email";
     }
-    ?>
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -40,8 +82,9 @@
 </head>
 <body>
     <h2>Formulaire d'inscription</h2>
-    <form action="inscription.php" method="post">
-        <label for="nom">Nom:</label>
+
+    <form action="" method="POST">
+        <!-- <label for="nom">Nom:</label>
         <input type="text" id="nom" name="nom" required><br><br>
 
         <label for="prenom">Prénom:</label>
@@ -54,18 +97,20 @@
         <input type="text" id="adresse" name="adresse" required><br><br>
 
         <label for="telephone">Téléphone:</label>
-        <input type="tel" id="telephone" name="telephone" required><br><br>
+        <input type="tel" id="telephone" name="telephone" required><br><br> -->
 
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required><br><br>
 
-        <label for="password">Mot de passe:</label>
+        <input type="submit" value="Valider" name="valider">
+
+        <!-- <label for="password">Mot de passe:</label>
         <input type="password" id="password" name="password" required><br><br>
 
         <label for="confirm_password">Confirmer le mot de passe:</label>
         <input type="password" id="confirm_password" name="confirm_password" required><br><br>
 
-        <input type="submit" value="S'inscrire">
+        <input type="submit" value="S'inscrire"> -->
     </form>
 
 </body>
