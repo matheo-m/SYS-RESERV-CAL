@@ -9,9 +9,9 @@ if (isset($_GET['id']) && isset($_GET['cle']) && !empty($_GET['id']) && !empty($
     $recupUser = $bdd->prepare('SELECT * FROM utilisateurs WHERE id = ? AND cle = ?');
     $recupUser->execute(array($getid, $getcle));
     if ($recupUser->rowCount() > 0) {
-        $user_info = $recupUser->fetch();
-        if ($user_info['confirme'] == 0) {
-            $updateConfirmation = $bdd->prepare('UPDATE utilisateurs SET confirme = 1 WHERE id = ? AND cle = ?');
+        $userInfo   = $recupUser->fetch();
+        if ($userInfo['confirme'] != 1) {
+            $updateConfirmation = $bdd->prepare('UPDATE utilisateurs SET confirme = ? WHERE id = ?');
             $updateConfirmation->execute(array(1, $getid));
             $_SESSION['cle'] = $getcle;
             header('Location: index.php');
@@ -26,6 +26,8 @@ if (isset($_GET['id']) && isset($_GET['cle']) && !empty($_GET['id']) && !empty($
 
 } else {
     echo 'aucun utilisateur trouvé';
+    echo 'Clé: ' . htmlspecialchars($_GET['cle']) . '<br>';
+    echo 'ID: ' . htmlspecialchars($_GET['id']);
 }
 ?>
 
