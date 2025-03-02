@@ -1,6 +1,7 @@
 <?php
-session_start();
+// session_start();
 require 'config.php'; // Connexion à la base de données
+require 'navbar.php';
 
 if (isset($_POST['valider'])) {
     if (isset($_POST['email'], $_POST['password']) && !empty($_POST['email']) && !empty($_POST['password'])) {
@@ -26,7 +27,7 @@ if (isset($_POST['valider'])) {
                 $_SESSION['telephone'] = $userInfo['telephone'];
 
 
-                header('Location: profil.php'); // Redirige vers le profil
+                header('Location: index.php'); // Redirige vers le profil
                 exit;
             } else {
                 $error = "Mot de passe incorrect.";
@@ -47,7 +48,9 @@ if (isset($_POST['valider'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
@@ -68,9 +71,9 @@ if (isset($_POST['valider'])) {
         </form>
 
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
