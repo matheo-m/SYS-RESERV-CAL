@@ -1,5 +1,4 @@
 <?php
-// session_start();
 require 'config.php';
 require 'navbar.php';
 
@@ -18,37 +17,54 @@ $recupRdv->execute(array($_SESSION['id']));
 <head>
     <meta charset="UTF-8">
     <title>Mes Rendez-vous</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-
 </head>
 
 <body>
-    <h2>Mes Rendez-vous</h2>
-    <table border="1">
-        <tr>
-            <th>Date</th>
-            <th>Heure</th>
-            <th>Statut</th>
-            <th>Action</th>
-        </tr>
-        <?php while ($rdv = $recupRdv->fetch()) { ?>
-            <tr>
-                <td><?= htmlspecialchars($rdv['date_rdv']) ?></td>
-                <td><?= htmlspecialchars($rdv['heure_rdv']) ?></td>
-                <td><?= htmlspecialchars($rdv['statut']) ?></td>
-                <td>
-                    <a href="annuler_rdv.php?id=<?= $rdv['id'] ?>">Annuler</a>
-                </td>
-            </tr>
-        <?php } ?>
-    </table>
+    <div class="container mt-5">
+        <h2 class="mb-4 text-primary text-center">Mes Rendez-vous</h2>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Date</th>
+                        <th>Heure</th>
+                        <th>Statut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($rdv = $recupRdv->fetch()) { ?>
+                        <tr>
+                            <td><?= htmlspecialchars($rdv['date_rdv']) ?></td>
+                            <td><?= htmlspecialchars($rdv['heure_rdv']) ?></td>
+                            <td>
+                                <span class="badge 
+                                    <?= ($rdv['statut'] == 'confirmé') ? 'bg-success' : 'bg-warning' ?>">
+                                    <?= htmlspecialchars($rdv['statut']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="annuler_rdv.php?id=<?= $rdv['id'] ?>" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?');">
+                                    Annuler
+                                </a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="prise_rdv.php" class="btn btn-primary">Prendre un nouveau rendez-vous</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

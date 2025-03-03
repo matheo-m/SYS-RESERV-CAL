@@ -1,6 +1,5 @@
 <?php
-// session_start();
-require 'config.php'; // Connexion à la base de données
+require 'config.php'; 
 require 'navbar.php';
 
 if (!isset($_SESSION['id'])) {
@@ -8,26 +7,31 @@ if (!isset($_SESSION['id'])) {
     exit();
 }
 
+// Préremplissage avec les données de l'URL
+$date_rdv = isset($_GET['date']) ? $_GET['date'] : '';
+$heure_rdv = isset($_GET['heure']) ? $_GET['heure'] : '';
+
 if (isset($_POST['valider'])) {
     if (!empty($_POST['date_rdv']) && !empty($_POST['heure_rdv'])) {
         $date_rdv = $_POST['date_rdv'];
         $heure_rdv = $_POST['heure_rdv'];
 
-        // Vérification de la disponibilité du créneau
-        $verifDispo = $bdd->prepare("SELECT * FROM rendez_vous WHERE date_rdv = ? AND heure_rdv = ?");
+        // Vérification de la disponibilité
+        $verifDispo = $bdd->prepare("SELECT COUNT(*) FROM rendez_vous WHERE date_rdv = ? AND heure_rdv = ? AND statut = 'confirmé'");
         $verifDispo->execute(array($date_rdv, $heure_rdv));
+        $dispo = $verifDispo->fetchColumn();
 
-        if ($verifDispo->rowCount() == 0) {
-            // Créneau disponible, insertion du rendez-vous
+        if ($dispo == 0) {
+            // Insérer le rendez-vous
             $insertRdv = $bdd->prepare("INSERT INTO rendez_vous (utilisateur_id, date_rdv, heure_rdv, statut) VALUES (?, ?, ?, 'confirmé')");
             $insertRdv->execute(array($_SESSION['id'], $date_rdv, $heure_rdv));
 
-            echo "Rendez-vous pris avec succès !";
+            echo "<div class='alert alert-success'>Rendez-vous pris avec succès !</div>";
         } else {
-            echo "Ce créneau est déjà réservé, veuillez en choisir un autre.";
+            echo "<div class='alert alert-danger'>Ce créneau est déjà réservé, veuillez en choisir un autre.</div>";
         }
     } else {
-        echo "Veuillez remplir tous les champs.";
+        echo "<div class='alert alert-warning'>Veuillez remplir tous les champs.</div>";
     }
 }
 ?>
@@ -37,24 +41,24 @@ if (isset($_POST['valider'])) {
 <head>
     <meta charset="UTF-8">
     <title>Prendre un Rendez-vous</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+
+<div class="container mt-5">
     <h2>Prendre un rendez-vous</h2>
     <form action="" method="POST">
         <label for="date_rdv">Date :</label>
-        <input type="date" id="date_rdv" name="date_rdv" required><br><br>
+        <input type="date" id="date_rdv" name="date_rdv" value="<?= htmlspecialchars($date_rdv) ?>" required><br><br>
 
         <label for="heure_rdv">Heure :</label>
-        <input type="time" id="heure_rdv" name="heure_rdv" required><br><br>
+        <input type="time" id="heure_rdv" name="heure_rdv" value="<?= htmlspecialchars($heure_rdv) ?>" required><br><br>
 
-        <input type="submit" value="Valider" name="valider">
+        <input type="submit" value="Réserver" name="valider" class="btn btn-primary">
     </form>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
