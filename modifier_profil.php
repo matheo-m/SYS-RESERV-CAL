@@ -60,6 +60,13 @@ if (isset($_POST['modifier'])) {
             echo '<div class="alert alert-success">' . $message . '</div>'; ?>
 
         <h3>Modifier mes informations</h3>
+
+        <?php
+        // echo "<pre>";
+        // print_r($_SESSION);
+        // echo "</pre>";
+        ?>
+        
         <form action="" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
 

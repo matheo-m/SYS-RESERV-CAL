@@ -1,9 +1,7 @@
 <?php
-// session_start();
-require 'config.php'; // Connexion à la base de données
+require 'config.php';
 require 'navbar.php';
 
-// Génération du token CSRF s'il n'existe pas encore
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -15,27 +13,29 @@ if (isset($_POST['valider'])) {
 
     if (isset($_POST['email'], $_POST['password']) && !empty($_POST['email']) && !empty($_POST['password'])) {
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-
+        
         $recupUser = $bdd->prepare('SELECT * FROM utilisateurs WHERE email = ?');
         $recupUser->execute(array($email));
 
         if ($recupUser->rowCount() > 0) {
             $userInfo = $recupUser->fetch();
 
-            // Vérification du mot de passe
-            if (password_verify($_POST['password'], $userInfo['password'])) {
-                session_regenerate_id(true); // Sécurise la session
+            if ($userInfo['confirme'] == 0) {
+                $error = "Veuillez valider votre compte avant de vous connecter.";
+            } elseif (password_verify($_POST['password'], $userInfo['password'])) {
+                session_regenerate_id(true);
 
                 $_SESSION['id'] = $userInfo['id'];
                 $_SESSION['email'] = $userInfo['email'];
                 $_SESSION['nom'] = $userInfo['nom'];
                 $_SESSION['prenom'] = $userInfo['prenom'];
+
                 $_SESSION['date_naissance'] = $userInfo['date_naissance'];
                 $_SESSION['adresse'] = $userInfo['adresse'];
                 $_SESSION['telephone'] = $userInfo['telephone'];
 
-                header('Location: index.php'); // Redirige vers le profil
-                exit;
+                header('Location: index.php');
+                exit();
             } else {
                 $error = "Mot de passe incorrect.";
             }

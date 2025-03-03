@@ -1,73 +1,12 @@
 <?php
-// require_once 'sendMailFunction.php'; // récupère la fonction d'envoi de mail
-
-// if (isset($_POST['valider'])) {
-//     if (!empty($_POST['email'])) {
-
-
-//         $cle = rand(100000, 999999);
-//         $email = $_POST['email'];
-//         $insererUser = $bdd->prepare("INSERT INTO utilisateurs (email, cle, confirme) VALUES (?, ?, ?)");
-//         $insererUser->execute(array($email, $cle, 0));
-
-//         $recupUser = $bdd->prepare("SELECT * FROM utilisateurs WHERE email = ?");
-//         $recupUser->execute(array($email));
-
-//         if ($recupUser->rowCount() > 0) {
-//             $userInfos = $recupUser->fetch();
-//             $_SESSION['id'] = $userInfos['id'];
-
-//             function smtpmailer($to, $body)
-//             {
-//                 $mail = new PHPMailer();
-//                 //Server settings
-//                 $mail->SMTPDebug = 0;                      //Enable verbose debug output
-//                 $mail->isSMTP();                                            //Send using SMTP
-//                 $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-//                 $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-//                 $mail->Username = 'matheomousse.contact@gmail.com';                     //SMTP username
-//                 $mail->Password = 'qjwlmjsyejupdkcy';                               //SMTP password
-//                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-//                 $mail->Port = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-
-//                 //Recipients
-//                 $mail->setFrom('matheomousse.contact@gmail.com', 'Mailer');
-//                 $mail->addAddress($to, 'User');     //Add a recipient
-
-//                 //Content
-//                 $mail->isHTML(true);                                  //Set email format to HTML
-//                 $mail->Subject = 'Validation de votre compte';
-//                 $mail->CharSet = 'UTF-8';
-//                 $mail->AddReplyTo('matheomousse.contact@gmail.com', 'Mailer');
-
-//                 $mail->Body = $body;
-
-//                 if (!$mail->Send()) {
-//                     $error = "Mailer Error: " . $mail->ErrorInfo;
-
-//                     return $error;
-//                 } else {
-//                     $error = "Thanks You !! Your email is sent.";
-
-//                     return $error;
-//                 }
-//             }
-
-//             $to = $email;
-//             $msg = 'Cliquez sur le lien suivant pour activer votre compte : 
-//             <a href="http://localhost/mes_projets/SYS-RESERV-CAL/verif.php?id=' . $_SESSION['id'] . '&cle=' . $cle . '">Activer mon compte</a>';
-
-
-//             $error = smtpmailer($to, $msg);
-//         }
-//     } else {
-//         echo "Veuillez renseigner votre email";
-//     }
-// }
-?>
-<?php
 require 'config.php';
 require 'navbar.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 // Générer un token CSRF s'il n'existe pas
 if (empty($_SESSION['csrf_token'])) {
@@ -89,6 +28,7 @@ if (isset($_POST['valider'])) {
             $telephone = htmlspecialchars($_POST['telephone']);
             $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
             $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash du mot de passe
+            $cle = rand(100000, 999999); // Clé d'activation
 
             // Vérifier si l'email existe déjà
             $checkEmail = $bdd->prepare("SELECT id FROM utilisateurs WHERE email = ?");
@@ -98,10 +38,49 @@ if (isset($_POST['valider'])) {
                 echo "Cet email est déjà utilisé.";
             } else {
                 // Insérer l'utilisateur en base de données
-                $insererUser = $bdd->prepare("INSERT INTO utilisateurs (nom, prenom, date_naissance, adresse, telephone, email, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $insererUser->execute(array($nom, $prenom, $date_naissance, $adresse, $telephone, $email, $password));
+                $insererUser = $bdd->prepare("INSERT INTO utilisateurs (nom, prenom, date_naissance, adresse, telephone, email, password, cle, confirme) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)");
+                $insererUser->execute(array($nom, $prenom, $date_naissance, $adresse, $telephone, $email, $password, $cle));
 
-                echo "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+                // Récupérer l'utilisateur pour l'e-mail
+                $recupUser = $bdd->prepare("SELECT id FROM utilisateurs WHERE email = ?");
+                $recupUser->execute(array($email));
+
+                if ($recupUser->rowCount() > 0) {
+                    $userInfos = $recupUser->fetch();
+                    $_SESSION['id'] = $userInfos['id'];
+
+                    // Fonction pour envoyer l'email de vérification
+                    function sendVerificationEmail($to, $cle, $userId) {
+                        $mail = new PHPMailer();
+                        try {
+                            $mail->isSMTP();
+                            $mail->Host = 'smtp.gmail.com';
+                            $mail->SMTPAuth = true;
+                            $mail->Username = 'matheomousse.contact@gmail.com';
+                            $mail->Password = 'qjwlmjsyejupdkcy'; 
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                            $mail->Port = 465;
+                            $mail->setFrom('matheomousse.contact@gmail.com', 'Support');
+                            $mail->addAddress($to);
+                            $mail->isHTML(true);
+                            $mail->Subject = 'Validation de votre compte';
+                            $mail->Body = "Cliquez sur le lien suivant pour activer votre compte : 
+                            <a href='http://localhost/mes_projets/SYS-RESERV-CAL/verif.php?id=$userId&cle=$cle'>Activer mon compte</a>";
+
+                            $mail->send();
+                            return true;
+                        } catch (Exception $e) {
+                            return false;
+                        }
+                    }
+
+                    // Envoi de l'email
+                    if (sendVerificationEmail($email, $cle, $_SESSION['id'])) {
+                        echo "Un e-mail de vérification a été envoyé à votre adresse.";
+                    } else {
+                        echo "Erreur lors de l'envoi de l'e-mail.";
+                    }
+                }
             }
         } else {
             echo "Veuillez remplir tous les champs.";

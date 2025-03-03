@@ -11,7 +11,7 @@ session_start();
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <?php if (isset($_SESSION['id'])) { ?>
+            <?php if (isset($_SESSION['id']) && isset($_SESSION['prenom']) && isset($_SESSION['nom'])) { ?>
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="index.php">Accueil</a></li>
                 <li class="nav-item"><a class="nav-link" href="prise_rdv.php">Prendre un Rendez-vous</a></li>
