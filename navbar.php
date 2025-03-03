@@ -11,6 +11,7 @@ session_start();
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
+            <?php if (isset($_SESSION['id'])) { ?>
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="index.php">Accueil</a></li>
                 <li class="nav-item"><a class="nav-link" href="prise_rdv.php">Prendre un Rendez-vous</a></li>
@@ -19,7 +20,6 @@ session_start();
                 <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
             </ul>
 
-            <?php if (isset($_SESSION['id'])) { ?>
                 <div class="d-flex align-items-center">
                     <span class="me-3 fw-bold text-primary">Bonjour, <?php echo htmlspecialchars($_SESSION['prenom']) . ' ' . $_SESSION['nom']; ?></span>
                     <a href="logout.php" class="btn btn-outline-danger">Déconnexion</a>

@@ -1,5 +1,4 @@
 <?php
-// session_start();
 require 'config.php';
 require 'navbar.php';
 
@@ -8,30 +7,38 @@ if (!isset($_SESSION['id'])) {
     exit;
 }
 
-// Si le formulaire est soumis pour mettre à jour les informations
-if (isset($_POST['modifier'])) {
-    $nom = htmlspecialchars($_POST['nom']);
-    $prenom = htmlspecialchars($_POST['prenom']);
-    $date_naissance = $_POST['date_naissance'];
-    $adresse = htmlspecialchars($_POST['adresse']);
-    $telephone = htmlspecialchars($_POST['telephone']);
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-
-    // Mise à jour des informations dans la base de données
-    $updateUser = $bdd->prepare('UPDATE utilisateurs SET nom = ?, prenom = ?, date_naissance = ?, adresse = ?, telephone = ?, email = ? WHERE id = ?');
-    $updateUser->execute(array($nom, $prenom, $date_naissance, $adresse, $telephone, $email, $_SESSION['id']));
-
-    // Actualisation des informations dans la session
-    $_SESSION['nom'] = $nom;
-    $_SESSION['prenom'] = $prenom;
-    $_SESSION['date_naissance'] = $date_naissance;
-    $_SESSION['adresse'] = $adresse;
-    $_SESSION['telephone'] = $telephone;
-    $_SESSION['email'] = $email;
-
-    $message = "Informations mises à jour avec succès.";
+// Générer un token CSRF s'il n'existe pas
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Si le formulaire est soumis pour mettre à jour les informations
+if (isset($_POST['modifier'])) {
+    if (!empty($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $nom = htmlspecialchars($_POST['nom']);
+        $prenom = htmlspecialchars($_POST['prenom']);
+        $date_naissance = $_POST['date_naissance'];
+        $adresse = htmlspecialchars($_POST['adresse']);
+        $telephone = htmlspecialchars($_POST['telephone']);
+        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+
+        // Mise à jour des informations dans la base de données
+        $updateUser = $bdd->prepare('UPDATE utilisateurs SET nom = ?, prenom = ?, date_naissance = ?, adresse = ?, telephone = ?, email = ? WHERE id = ?');
+        $updateUser->execute(array($nom, $prenom, $date_naissance, $adresse, $telephone, $email, $_SESSION['id']));
+
+        // Actualisation des informations dans la session
+        $_SESSION['nom'] = $nom;
+        $_SESSION['prenom'] = $prenom;
+        $_SESSION['date_naissance'] = $date_naissance;
+        $_SESSION['adresse'] = $adresse;
+        $_SESSION['telephone'] = $telephone;
+        $_SESSION['email'] = $email;
+
+        $message = "Informations mises à jour avec succès.";
+    } else {
+        $message = "Échec de validation du token CSRF.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,8 +48,7 @@ if (isset($_POST['modifier'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil - Modifier mes informations</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
@@ -55,6 +61,8 @@ if (isset($_POST['modifier'])) {
 
         <h3>Modifier mes informations</h3>
         <form action="" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
+
             <div class="form-group">
                 <label for="nom">Nom :</label>
                 <input type="text" class="form-control" name="nom" value="<?= htmlspecialchars($_SESSION['nom']) ?>"
@@ -100,12 +108,10 @@ if (isset($_POST['modifier'])) {
                 Supprimer mon compte
             </button>
         </form>
-
-
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>
