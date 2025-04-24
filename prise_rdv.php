@@ -1,6 +1,6 @@
 <?php
+session_start();
 require 'config.php'; 
-require 'navbar.php';
 
 if (!isset($_SESSION['id'])) {
     header("Location: connexion.php");
@@ -21,17 +21,17 @@ if (isset($_POST['valider'])) {
         if (!empty($_POST['date_rdv']) && !empty($_POST['heure_rdv'])) {
             $date_rdv = $_POST['date_rdv'];
             $heure_rdv = $_POST['heure_rdv'];
-
+            
             // Vérification de la disponibilité
             $verifDispo = $bdd->prepare("SELECT COUNT(*) FROM rendez_vous WHERE date_rdv = ? AND heure_rdv = ? AND statut = 'confirmé'");
             $verifDispo->execute(array($date_rdv, $heure_rdv));
             $dispo = $verifDispo->fetchColumn();
-
+            
             if ($dispo == 0) {
                 // Insérer le rendez-vous
                 $insertRdv = $bdd->prepare("INSERT INTO rendez_vous (utilisateur_id, date_rdv, heure_rdv, statut) VALUES (?, ?, ?, 'confirmé')");
                 $insertRdv->execute(array($_SESSION['id'], $date_rdv, $heure_rdv));
-
+                
                 echo "<div class='alert alert-success'>Rendez-vous pris avec succès !</div>";
             } else {
                 echo "<div class='alert alert-danger'>Ce créneau est déjà réservé, veuillez en choisir un autre.</div>";
@@ -43,14 +43,16 @@ if (isset($_POST['valider'])) {
         echo "<div class='alert alert-danger'>Échec de validation du token CSRF.</div>";
     }
 }
+
+require 'navbar.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Prendre un Rendez-vous</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <head>
+        <meta charset="UTF-8">
+        <title>Prendre un Rendez-vous</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 

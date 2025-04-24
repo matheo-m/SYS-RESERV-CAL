@@ -1,5 +1,5 @@
 <?php
-session_start(); // toujours tout en haut !
+session_start();
 
 require 'config.php';
 
@@ -47,7 +47,6 @@ if (isset($_POST['valider'])) {
     }
 }
 
-// Inclure navbar seulement après la logique de traitement
 require 'navbar.php';
 ?>
 

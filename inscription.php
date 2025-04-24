@@ -1,6 +1,6 @@
 <?php
+session_start();
 require 'config.php';
-require 'navbar.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 require 'PHPMailer/src/Exception.php';
@@ -29,26 +29,26 @@ if (isset($_POST['valider'])) {
             $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
             $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash du mot de passe
             $cle = rand(100000, 999999); // Clé d'activation
-
+            
             // Vérifier si l'email existe déjà
             $checkEmail = $bdd->prepare("SELECT id FROM utilisateurs WHERE email = ?");
             $checkEmail->execute(array($email));
-
+            
             if ($checkEmail->rowCount() > 0) {
                 echo "Cet email est déjà utilisé.";
             } else {
                 // Insérer l'utilisateur en base de données
                 $insererUser = $bdd->prepare("INSERT INTO utilisateurs (nom, prenom, date_naissance, adresse, telephone, email, password, cle, confirme) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)");
                 $insererUser->execute(array($nom, $prenom, $date_naissance, $adresse, $telephone, $email, $password, $cle));
-
+                
                 // Récupérer l'utilisateur pour l'e-mail
                 $recupUser = $bdd->prepare("SELECT id FROM utilisateurs WHERE email = ?");
                 $recupUser->execute(array($email));
-
+                
                 if ($recupUser->rowCount() > 0) {
                     $userInfos = $recupUser->fetch();
                     $_SESSION['id'] = $userInfos['id'];
-
+                    
                     // Fonction pour envoyer l'email de vérification
                     function sendVerificationEmail($to, $cle, $userId) {
                         $mail = new PHPMailer();
@@ -67,14 +67,14 @@ if (isset($_POST['valider'])) {
                             $mail->Subject = 'Validation de votre compte';
                             $mail->Body = "Cliquez sur le lien suivant pour activer votre compte : 
                             <a href='http://localhost/mes_projets/SYS-RESERV-CAL/verif.php?id=$userId&cle=$cle'>Activer mon compte</a>";
-
+                            
                             $mail->send();
                             return true;
                         } catch (Exception $e) {
                             return false;
                         }
                     }
-
+                    
                     // Envoi de l'email
                     if (sendVerificationEmail($email, $cle, $_SESSION['id'])) {
                         echo "Un e-mail de vérification a été envoyé à votre adresse.";
@@ -90,14 +90,16 @@ if (isset($_POST['valider'])) {
         echo "Échec de validation du token CSRF.";
     }
 }
+
+require 'navbar.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">

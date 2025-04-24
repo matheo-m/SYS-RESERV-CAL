@@ -1,4 +1,7 @@
-<?php require 'navbar.php'; ?>
+<?php 
+session_start();
+require 'navbar.php'; 
+?>
 
 <!DOCTYPE html>
 <html lang="fr">

@@ -1,7 +1,6 @@
 <?php
-// session_start();
+session_start();
 require 'config.php';
-require 'navbar.php';
 
 if (!isset($_SESSION['id'])) {
     header("Location: connexion.php");
@@ -16,11 +15,11 @@ if (isset($_POST['modifier'])) {
     $adresse = htmlspecialchars($_POST['adresse']);
     $telephone = htmlspecialchars($_POST['telephone']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-
+    
     // Mise à jour des informations dans la base de données
     $updateUser = $bdd->prepare('UPDATE utilisateurs SET nom = ?, prenom = ?, date_naissance = ?, adresse = ?, telephone = ?, email = ? WHERE id = ?');
     $updateUser->execute(array($nom, $prenom, $date_naissance, $adresse, $telephone, $email, $_SESSION['id']));
-
+    
     // Actualisation des informations dans la session
     $_SESSION['nom'] = $nom;
     $_SESSION['prenom'] = $prenom;
@@ -28,18 +27,19 @@ if (isset($_POST['modifier'])) {
     $_SESSION['adresse'] = $adresse;
     $_SESSION['telephone'] = $telephone;
     $_SESSION['email'] = $email;
-
+    
     $message = "Informations mises à jour avec succès.";
 }
 
+require 'navbar.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil - Modifier mes informations</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
