@@ -1,6 +1,7 @@
 <?php
+session_start(); // toujours tout en haut !
+
 require 'config.php';
-require 'navbar.php';
 
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -29,7 +30,6 @@ if (isset($_POST['valider'])) {
                 $_SESSION['email'] = $userInfo['email'];
                 $_SESSION['nom'] = $userInfo['nom'];
                 $_SESSION['prenom'] = $userInfo['prenom'];
-
                 $_SESSION['date_naissance'] = $userInfo['date_naissance'];
                 $_SESSION['adresse'] = $userInfo['adresse'];
                 $_SESSION['telephone'] = $userInfo['telephone'];
@@ -46,7 +46,11 @@ if (isset($_POST['valider'])) {
         $error = "Veuillez remplir tous les champs.";
     }
 }
+
+// Inclure navbar seulement après la logique de traitement
+require 'navbar.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
