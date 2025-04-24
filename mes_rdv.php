@@ -1,6 +1,6 @@
 <?php
+session_start();
 require 'config.php';
-require 'navbar.php';
 
 if (!isset($_SESSION['id'])) {
     header("Location: connexion.php");
@@ -9,6 +9,8 @@ if (!isset($_SESSION['id'])) {
 
 $recupRdv = $bdd->prepare("SELECT * FROM rendez_vous WHERE utilisateur_id = ? ORDER BY date_rdv, heure_rdv");
 $recupRdv->execute(array($_SESSION['id']));
+
+require 'navbar.php';
 ?>
 
 <!DOCTYPE html>

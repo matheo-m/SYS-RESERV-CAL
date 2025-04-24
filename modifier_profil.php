@@ -1,6 +1,6 @@
 <?php
+session_start();
 require 'config.php';
-require 'navbar.php';
 
 if (!isset($_SESSION['id'])) {
     header("Location: connexion.php");
@@ -21,11 +21,11 @@ if (isset($_POST['modifier'])) {
         $adresse = htmlspecialchars($_POST['adresse']);
         $telephone = htmlspecialchars($_POST['telephone']);
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-
+        
         // Mise à jour des informations dans la base de données
         $updateUser = $bdd->prepare('UPDATE utilisateurs SET nom = ?, prenom = ?, date_naissance = ?, adresse = ?, telephone = ?, email = ? WHERE id = ?');
         $updateUser->execute(array($nom, $prenom, $date_naissance, $adresse, $telephone, $email, $_SESSION['id']));
-
+        
         // Actualisation des informations dans la session
         $_SESSION['nom'] = $nom;
         $_SESSION['prenom'] = $prenom;
@@ -33,18 +33,20 @@ if (isset($_POST['modifier'])) {
         $_SESSION['adresse'] = $adresse;
         $_SESSION['telephone'] = $telephone;
         $_SESSION['email'] = $email;
-
+        
         $message = "Informations mises à jour avec succès.";
     } else {
         $message = "Échec de validation du token CSRF.";
     }
 }
+
+require 'navbar.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
-
-<head>
+    
+    <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil - Modifier mes informations</title>

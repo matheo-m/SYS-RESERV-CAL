@@ -1,5 +1,5 @@
 <?php
-require 'navbar.php';
+session_start();
 require 'config.php';
 
 // Récupération de la semaine demandée
@@ -29,6 +29,8 @@ $lundi_actuel->modify('monday this week');
 
 // Désactiver la navigation vers les semaines passées
 $desactiver_precedent = $dateDebut < $lundi_actuel;
+
+require 'navbar.php';
 ?>
 
 <!DOCTYPE html>
