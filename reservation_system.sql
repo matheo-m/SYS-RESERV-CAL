@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Hôte : 127.0.0.1:3306
--- Généré le : jeu. 27 fév. 2025 à 22:54
--- Version du serveur : 8.3.0
--- Version de PHP : 8.3.6
+-- Hôte : localhost:3306
+-- Généré le : jeu. 24 avr. 2025 à 20:21
+-- Version du serveur : 8.4.3
+-- Version de PHP : 8.3.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -27,16 +27,24 @@ SET time_zone = "+00:00";
 -- Structure de la table `rendez_vous`
 --
 
-DROP TABLE IF EXISTS `rendez_vous`;
-CREATE TABLE IF NOT EXISTS `rendez_vous` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `rendez_vous` (
+  `id` int NOT NULL,
   `utilisateur_id` int NOT NULL,
   `date_rdv` date NOT NULL,
   `heure_rdv` time NOT NULL,
-  `statut` enum('confirmé','annulé','en attente') DEFAULT 'en attente',
-  PRIMARY KEY (`id`),
-  KEY `utilisateur_id` (`utilisateur_id`)
+  `statut` enum('confirmé','annulé','en attente') DEFAULT 'en attente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `rendez_vous`
+--
+
+INSERT INTO `rendez_vous` (`id`, `utilisateur_id`, `date_rdv`, `heure_rdv`, `statut`) VALUES
+(1, 11, '2025-04-25', '08:00:00', 'confirmé'),
+(2, 11, '2025-04-28', '08:00:00', 'confirmé'),
+(3, 11, '2025-04-25', '18:30:00', 'confirmé'),
+(4, 12, '2025-04-28', '08:30:00', 'confirmé'),
+(5, 12, '2025-04-25', '18:00:00', 'confirmé');
 
 -- --------------------------------------------------------
 
@@ -44,29 +52,61 @@ CREATE TABLE IF NOT EXISTS `rendez_vous` (
 -- Structure de la table `utilisateurs`
 --
 
-DROP TABLE IF EXISTS `utilisateurs`;
-CREATE TABLE IF NOT EXISTS `utilisateurs` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `utilisateurs` (
+  `id` int NOT NULL,
   `nom` varchar(50) NOT NULL,
   `prenom` varchar(50) NOT NULL,
   `date_naissance` date NOT NULL,
   `adresse` text NOT NULL,
   `telephone` varchar(15) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `mot_de_passe` varchar(255) NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `cle` int DEFAULT NULL,
   `confirme` tinyint DEFAULT '0',
-  `date_creation` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `date_creation` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Déchargement des données de la table `utilisateurs`
 --
 
-INSERT INTO `utilisateurs` (`id`, `nom`, `prenom`, `date_naissance`, `adresse`, `telephone`, `email`, `mot_de_passe`, `cle`, `confirme`, `date_creation`) VALUES
-(9, '', '', '0000-00-00', '', '', 'yiwida7521@bnsteps.com', '', 263816, 0, '2025-02-27 22:43:16');
+INSERT INTO `utilisateurs` (`id`, `nom`, `prenom`, `date_naissance`, `adresse`, `telephone`, `email`, `password`, `cle`, `confirme`, `date_creation`) VALUES
+(11, 'Dupont', 'Jean', '1990-01-01', '123 Rue de Paris', '0123456789', 'xawib75088@f5url.com', '$2y$10$cl5fMxG1TR3Vfw3B0GneP.Zo0ateAAl3xRgcCbxWuhhjrZvKIFJ7m', 304823, 1, '2025-04-24 19:54:25'),
+(12, 'Dupont2', 'Jean', '1990-01-01', '123 Rue de Paris', '0123456789', 'tidobo6404@cxnlab.com', '$2y$10$nqfpa01z4vafLLfeBGxTJuKPj4KpCN8p6qslmRmS2MaNlFGLMHf.i', 418803, 1, '2025-04-24 20:13:00');
+
+--
+-- Index pour les tables déchargées
+--
+
+--
+-- Index pour la table `rendez_vous`
+--
+ALTER TABLE `rendez_vous`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `utilisateur_id` (`utilisateur_id`);
+
+--
+-- Index pour la table `utilisateurs`
+--
+ALTER TABLE `utilisateurs`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT pour les tables déchargées
+--
+
+--
+-- AUTO_INCREMENT pour la table `rendez_vous`
+--
+ALTER TABLE `rendez_vous`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT pour la table `utilisateurs`
+--
+ALTER TABLE `utilisateurs`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Contraintes pour les tables déchargées

@@ -20,7 +20,7 @@ for ($h = 8; $h <= 18; $h++) {
 $query = $bdd->query("SELECT date_rdv, heure_rdv FROM rendez_vous WHERE statut = 'confirmé'");
 $rdv_pris = [];
 while ($row = $query->fetch()) {
-    $rdv_pris[$row['date_rdv']][] = $row['heure_rdv'];
+    $rdv_pris[$row['date_rdv']][] = date('H:i', strtotime($row['heure_rdv']));
 }
 
 $aujourdhui = new DateTime(); // Date d'aujourd'hui pour comparaison
@@ -91,6 +91,9 @@ $desactiver_precedent = $dateDebut < $lundi_actuel;
                                        class="btn btn-sm btn-primary">
                                        Réserver
                                     </a>
+                                <?php } elseif ($estPris) { ?>
+                                    <br>
+                                    <button class="btn btn-sm btn-danger" disabled>Indisponible</button>
                                 <?php } ?>
                             </td>
                         <?php } ?>
