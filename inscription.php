@@ -57,7 +57,8 @@ if (isset($_POST['valider'])) {
                             $mail->Host = 'smtp.gmail.com';
                             $mail->SMTPAuth = true;
                             $mail->Username = 'matheomousse.contact@gmail.com';
-                            $mail->Password = getenv('SMTP_PASSWORD'); 
+                            // $mail->Password = getenv('EMAIL_PASSWORD');
+                            $mail->Password = 'qjwlmjsyejupdkcy';
                             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                             $mail->Port = 465;
                             $mail->setFrom('matheomousse.contact@gmail.com', 'Support');
