@@ -16,11 +16,9 @@ $verifRdv->execute(array($id_rdv, $_SESSION['id']));
 if ($verifRdv->rowCount() > 0) {
     $deleteRdv = $bdd->prepare("DELETE FROM rendez_vous WHERE id = ?");
     $deleteRdv->execute(array($id_rdv));
-    echo "Rendez-vous annulé avec succès.";
+    header("Location: mes_rdv.php?message=Rendez-vous annulé avec succès");
 } else {
-    echo "Vous n'avez pas accès à ce rendez-vous.";
+    header("Location: mes_rdv.php?message=Accès refusé à ce rendez-vous");
 }
-
-header("Location: mes_rdv.php");
 exit();
 ?>
